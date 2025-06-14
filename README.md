@@ -41,7 +41,7 @@ A customizable fast-travel system that puts the player in control. Mark up to 20
 ### ESSENTIAL
 
 - [SKSE64 (Skyrim Script Extender)](https://skse.silverlock.org/)
-- [UIExtensions (User Interface Extensions)](https://www.nexusmods.com/skyrimspecialedition/mods/12554)
+- [UIExtensions (User Interface Extensions)](https://www.nexusmods.com/skyrimspecialedition/mods/17561)
 
 ### RECOMMENDED
 
