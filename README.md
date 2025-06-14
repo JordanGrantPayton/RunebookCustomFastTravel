@@ -15,7 +15,7 @@ A customizable fast-travel system that puts the player in control. Mark up to 20
 - Immersive magic system - Uses spells and reagents instead of map clicking.
 - Instant travel - Less loading screens, no carriage rides, no opening the map.
 - Full control - Choose exactly where your fast-travel points go.
-- Smart management - Rename locations, delete unwanted marks, organize your network.
+- Smart management - Rename locations, delete unwanted marks, organize your Runebook.
 - Works everywhere - Mark locations in any worldspace, teleport to Blackreach.
 
 ## PERFECT FOR
