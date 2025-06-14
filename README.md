@@ -7,7 +7,7 @@
 
 ## DESCRIPTION
 
-A customizable fast-travel system that puts the player in control. Mark up to 20 personal waypoints anywhere in the world, then teleport instantly to any saved location with intuitive spell-based travel.
+A customizable fast-travel system for Skyrim that puts the player in control. Mark up to 20 personal waypoints anywhere in the world, then teleport instantly to any saved location with intuitive spell-based travel.
 
 ## WHAT THIS GIVES YOU
 
