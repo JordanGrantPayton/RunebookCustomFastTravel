@@ -28,7 +28,6 @@ PERFECT FOR:
 • Teleporting directly into your home.
 • Quick access to favorite shops, merchants, workbenches, etc.
 
-
 FEATURES:
 ---------
 • Mark Spell - Save any position in any worldspace as a permanent teleportation waypoint.
