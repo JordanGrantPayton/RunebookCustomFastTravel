@@ -2,8 +2,8 @@
 
 **VERSION:** 1.0.0  
 **RELEASE DATE:** 2025/06/14  
-**AUTHOR:** Jordan Payton
-**DEVELOPED FOR:** SKYRIM VERSION: 1.6.1170.0.8
+**AUTHOR:** Jordan Payton  
+**DEVELOPED FOR:** SKYRIM VERSION: 1.6.1170.0.8  
 **INSPIRED BY:** The golden age of online RPGs, a certain mystical realm where virtue once reigned.
 
 ## DESCRIPTION
