@@ -2,10 +2,26 @@ Scriptname GrimoirePowerScript extends ActiveMagicEffect
 
 Book Property RunebookBase Auto
 
+; Menu timeout constants
+Int Property MAX_MENU_ITERATIONS = 100 Auto
+Int MENU_TIMEOUT_SECONDS = 300  ; Fixed 5 minutes
+
+; Cache for location data to reduce StorageUtil calls
+String[] cachedUIDs
+String[] cachedNames
+Int cachedCount = 0
+Float lastCacheTime = 0.0
+Float CACHE_TIMEOUT = 5.0
+
+; Session management
+Bool sessionActive = False
+Float sessionStartTime = 0.0
+Int sessionIterations = 0
+
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     If akTarget == Game.GetPlayer()
         If ValidateGrimoireRequirements()
-            OpenGrimoireSession()  ; Start the continuous session
+            StartGrimoireSession()
         EndIf
     EndIf
 EndEvent
@@ -44,44 +60,170 @@ Bool Function ValidatePlayerState()
     Return True
 EndFunction
 
-; Main Runebook continuous menu loop
+; Start session with proper initialization
+Function StartGrimoireSession()
+    sessionActive = True
+    sessionStartTime = Utility.GetCurrentRealTime()
+    sessionIterations = 0
+    
+    RefreshLocationCache()
+    OpenGrimoireSession()
+    EndGrimoireSession()
+EndFunction
+
+; Main Runebook session with safety limits
 Function OpenGrimoireSession()
-    While True
+    While sessionActive && sessionIterations < MAX_MENU_ITERATIONS
+        ; Safety timeout check
+        If IsSessionTimedOut()
+            Debug.Notification("Session timeout reached.")
+            Return
+        EndIf
+        
         String menuResult = ShowMainGrimoireMenu()
         
-        If menuResult == "close"
-            Return  ; Exit the session
+        If menuResult == "close" || menuResult == "timeout" || menuResult == "error"
+            Return
         ElseIf menuResult == "manage"
             ShowRuneManagementSession()
         ElseIf menuResult == "settings"
             ShowSettingsSession()
         ElseIf menuResult == "select"
-            ; Selection made, continue loop to main menu
-            ; (loop will continue automatically)
+            ; Selection made, continue loop
         EndIf
+        
+        sessionIterations += 1
+        Utility.Wait(0.1)
     EndWhile
+    
+    If sessionIterations >= MAX_MENU_ITERATIONS
+        Debug.Notification("Maximum menu operations reached.")
+    EndIf
 EndFunction
 
-; Show main Runebook menu and return action
-String Function ShowMainGrimoireMenu()
-    Actor player = Game.GetPlayer()
-    Int numLocations = StorageUtil.GetIntValue(player, "Runebook_Count", 0)
+; Check if session has timed out
+Bool Function IsSessionTimedOut()
+    Return (Utility.GetCurrentRealTime() - sessionStartTime) > MENU_TIMEOUT_SECONDS
+EndFunction
+
+; Clean session shutdown
+Function EndGrimoireSession()
+    sessionActive = False
+    sessionStartTime = 0.0
+    sessionIterations = 0
+    CleanupCache()
+EndFunction
+
+; Cache management to reduce StorageUtil calls
+Function RefreshLocationCache()
+    Float currentTime = Utility.GetCurrentRealTime()
+    If (currentTime - lastCacheTime) < CACHE_TIMEOUT && cachedCount > 0
+        Return
+    EndIf
     
-    If numLocations == 0
+    Actor player = Game.GetPlayer()
+    Int storedCount = StorageUtil.GetIntValue(player, "Runebook_Count", 0)
+    
+    ; Clear old arrays
+    cachedUIDs = new String[20]
+    cachedNames = new String[20]
+    
+    ; Populate cache with validation
+    Int validCount = 0
+    Int i = 0
+    While i < storedCount && validCount < 20
+        String uid = StorageUtil.GetStringValue(player, "Runebook_" + i)
+        If uid != ""
+            String locName = StorageUtil.GetStringValue(player, uid + "_Name")
+            If locName != "" && ValidateMarkerExists(player, uid)
+                cachedUIDs[validCount] = uid
+                cachedNames[validCount] = locName
+                validCount += 1
+            Else
+                ; Clean up invalid entry
+                CleanupInvalidRune(player, i)
+            EndIf
+        EndIf
+        i += 1
+    EndWhile
+    
+    cachedCount = validCount
+    lastCacheTime = currentTime
+    
+    ; Update stored count if it changed
+    If validCount != storedCount
+        StorageUtil.SetIntValue(player, "Runebook_Count", validCount)
+        CompactRuneList()
+    EndIf
+EndFunction
+
+; Validate marker still exists
+Bool Function ValidateMarkerExists(Actor player, String uid)
+    Form markerForm = StorageUtil.GetFormValue(player, uid + "_Marker")
+    If !markerForm
+        Return False
+    EndIf
+    
+    ObjectReference marker = markerForm as ObjectReference
+    If !marker || marker.IsDeleted()
+        Return False
+    EndIf
+    
+    Return True
+EndFunction
+
+; Clean up invalid rune data
+Function CleanupInvalidRune(Actor player, Int index)
+    String uid = StorageUtil.GetStringValue(player, "Runebook_" + index)
+    If uid != ""
+        ; Clean up marker if it exists
+        Form markerForm = StorageUtil.GetFormValue(player, uid + "_Marker")
+        If markerForm
+            ObjectReference marker = markerForm as ObjectReference
+            If marker && !marker.IsDeleted()
+                marker.Delete()
+            EndIf
+        EndIf
+        
+        ; Clean up storage
+        StorageUtil.UnsetFormValue(player, uid + "_Marker")
+        StorageUtil.UnsetStringValue(player, uid + "_Name")
+        StorageUtil.UnsetStringValue(player, "Runebook_" + index)
+    EndIf
+EndFunction
+
+; Cleanup cache memory
+Function CleanupCache()
+    cachedUIDs = new String[1]
+    cachedNames = new String[1]
+    cachedCount = 0
+EndFunction
+
+; Show main menu with improved error handling
+String Function ShowMainGrimoireMenu()
+    If !sessionActive || IsSessionTimedOut()
+        Return "close"
+    EndIf
+    
+    Actor player = Game.GetPlayer()
+    RefreshLocationCache()
+    
+    If cachedCount == 0
         Debug.Notification("Thy Runebook contains no runes.")
         Return "close"
     EndIf
     
-    UIListMenu menu = CreateMainMenu(player, numLocations)
+    UIListMenu menu = CreateMainMenu(player)
     If !menu
         Debug.Notification("ERROR: Could not create Runebook menu!")
-        Return "close"
+        Return "error"
     EndIf
     
     menu.OpenMenu()
     String result = menu.GetResultString()
     
-    If result == "[[ Close ]]" || result == ""
+    ; Handle menu results
+    If result == "[[ Close ]]" || result == "" || result == "---"
         Return "close"
     ElseIf result == "[[ Manage Runes ]]"
         Return "manage"
@@ -90,13 +232,16 @@ String Function ShowMainGrimoireMenu()
     Else
         ; Location selected
         String cleanResult = CleanSelectionMarkers(result)
-        SetSelectedDestination(cleanResult)
-        Return "select"
+        If SetSelectedDestination(cleanResult)
+            Return "select"
+        Else
+            Return "error"
+        EndIf
     EndIf
 EndFunction
 
-; Create the main Runebook menu
-UIListMenu Function CreateMainMenu(Actor player, Int numLocations)
+; Create main menu using cached data
+UIListMenu Function CreateMainMenu(Actor player)
     UIListMenu menu = UIExtensions.GetMenu("UIListMenu", TRUE) as UIListMenu
     If !menu
         Return None
@@ -108,27 +253,24 @@ UIListMenu Function CreateMainMenu(Actor player, Int numLocations)
     menu.AddEntryItem("[[ Settings ]]")
     menu.AddEntryItem("---")
     
-    ; Location entries
+    ; Get current selection for highlighting
     String currentSelection = StorageUtil.GetStringValue(player, "Runebook_SelectedName", "")
-    PopulateLocationEntries(menu, player, numLocations, currentSelection)
     
-    Return menu
-EndFunction
-
-; Populate menu with location entries
-Function PopulateLocationEntries(UIListMenu menu, Actor player, Int numLocations, String currentSelection)
+    ; Use cached data instead of repeated StorageUtil calls
     Int i = 0
-    While i < numLocations && i < 20
-        String uid = StorageUtil.GetStringValue(player, "Runebook_" + i)
-        String locName = StorageUtil.GetStringValue(player, uid + "_Name")
-        
-        If locName == currentSelection
-            menu.AddEntryItem(">>> " + locName + " <<<")
-        Else
-            menu.AddEntryItem(locName)
+    While i < cachedCount && i < 20
+        String locName = cachedNames[i]
+        If locName != ""
+            If locName == currentSelection
+                menu.AddEntryItem(">>> " + locName + " <<<")
+            Else
+                menu.AddEntryItem(locName)
+            EndIf
         EndIf
         i += 1
     EndWhile
+    
+    Return menu
 EndFunction
 
 ; Remove selection markers from result string
@@ -139,43 +281,74 @@ String Function CleanSelectionMarkers(String result)
     Return result
 EndFunction
 
-; Set the selected destination for recall
-Function SetSelectedDestination(String selectedName)
+; Improved destination setting with validation
+Bool Function SetSelectedDestination(String selectedName)
     Actor player = Game.GetPlayer()
-    String uid = FindRuneUIDByName(selectedName)
+    String uid = FindRuneUIDByNameCached(selectedName)
     
-    If uid != ""
+    If uid != "" && ValidateMarkerExists(player, uid)
         StorageUtil.SetStringValue(player, "Runebook_SelectedDestination", uid)
         StorageUtil.SetStringValue(player, "Runebook_SelectedName", selectedName)
         Debug.Notification("Destination chosen.")
+        Return True
+    Else
+        Debug.Notification("Selected location is no longer valid.")
+        Return False
     EndIf
 EndFunction
 
-; Rune management session
+; Fast lookup using cached data
+String Function FindRuneUIDByNameCached(String runeName)
+    Int i = 0
+    While i < cachedCount
+        If cachedNames[i] == runeName
+            Return cachedUIDs[i]
+        EndIf
+        i += 1
+    EndWhile
+    
+    ; Fallback to traditional lookup
+    Return FindRuneUIDByName(runeName)
+EndFunction
+
+; Management session with safety limits
 Function ShowRuneManagementSession()
-    While True
+    Int managementIterations = 0
+    
+    While sessionActive && managementIterations < 50 && sessionIterations < MAX_MENU_ITERATIONS
+        If IsSessionTimedOut()
+            Return
+        EndIf
+        
         String menuResult = ShowRuneManagementMenu()
         
-        If menuResult == "back"
-            Return  ; Return to main menu
+        If menuResult == "back" || menuResult == "error"
+            Return
         ElseIf menuResult == "action"
-            ; Action completed, continue management loop
-            ; (loop will continue automatically)
+            RefreshLocationCache()
         EndIf
+        
+        managementIterations += 1
+        sessionIterations += 1
+        Utility.Wait(0.1)
     EndWhile
 EndFunction
 
 ; Show rune management menu and return action
 String Function ShowRuneManagementMenu()
-    Actor player = Game.GetPlayer()
-    Int numLocations = StorageUtil.GetIntValue(player, "Runebook_Count", 0)
+    If !sessionActive || IsSessionTimedOut()
+        Return "back"
+    EndIf
     
-    If numLocations == 0
+    Actor player = Game.GetPlayer()
+    RefreshLocationCache()
+    
+    If cachedCount == 0
         Debug.Notification("No runes to manage.")
         Return "back"
     EndIf
     
-    UIListMenu menu = CreateManagementMenu(player, numLocations)
+    UIListMenu menu = CreateManagementMenu(player)
     If !menu
         Return "back"
     EndIf
@@ -183,16 +356,16 @@ String Function ShowRuneManagementMenu()
     menu.OpenMenu()
     String selectedRune = menu.GetResultString()
     
-    If selectedRune == "[[ Back ]]" || selectedRune == ""
+    If selectedRune == "[[ Back ]]" || selectedRune == "" || selectedRune == "---"
         Return "back"
     Else
         ShowRuneActionsLoop(selectedRune)
-        Return "action"  ; Continue management after action
+        Return "action"
     EndIf
 EndFunction
 
 ; Create rune management menu
-UIListMenu Function CreateManagementMenu(Actor player, Int numLocations)
+UIListMenu Function CreateManagementMenu(Actor player)
     UIListMenu menu = UIExtensions.GetMenu("UIListMenu", TRUE) as UIListMenu
     If !menu
         Return None
@@ -202,10 +375,11 @@ UIListMenu Function CreateManagementMenu(Actor player, Int numLocations)
     menu.AddEntryItem("---")
     
     Int i = 0
-    While i < numLocations && i < 20
-        String uid = StorageUtil.GetStringValue(player, "Runebook_" + i)
-        String locName = StorageUtil.GetStringValue(player, uid + "_Name")
-        menu.AddEntryItem(locName)
+    While i < cachedCount && i < 20
+        String locName = cachedNames[i]
+        If locName != ""
+            menu.AddEntryItem(locName)
+        EndIf
         i += 1
     EndWhile
     
@@ -214,18 +388,28 @@ EndFunction
 
 ; Rune actions loop for specific rune
 Function ShowRuneActionsLoop(String runeName)
-    While True
+    Int actionIterations = 0
+    
+    While sessionActive && actionIterations < 20
+        If IsSessionTimedOut()
+            Return
+        EndIf
+        
         String menuResult = ShowRuneActionMenu(runeName)
         
         If menuResult == "back"
-            Return  ; Back to management menu
+            Return
         ElseIf menuResult == "rename"
             ExecuteRename(runeName)
-            Return  ; Back to management after rename
+            Return
         ElseIf menuResult == "delete"
             ExecuteDelete(runeName)
-            Return  ; Back to management after delete
+            Return
         EndIf
+        
+        actionIterations += 1
+        sessionIterations += 1
+        Utility.Wait(0.1)
     EndWhile
 EndFunction
 
@@ -267,15 +451,24 @@ EndFunction
 
 ; Settings session
 Function ShowSettingsSession()
-    While True
+    Int settingsIterations = 0
+    
+    While sessionActive && settingsIterations < 30 && sessionIterations < MAX_MENU_ITERATIONS
+        If IsSessionTimedOut()
+            Return
+        EndIf
+        
         String menuResult = ShowSettingsMenu()
         
         If menuResult == "back"
-            Return  ; Return to main menu
+            Return
         ElseIf menuResult == "toggle"
             ; Setting toggled, continue settings loop
-            ; (loop will continue automatically)
         EndIf
+        
+        settingsIterations += 1
+        sessionIterations += 1
+        Utility.Wait(0.1)
     EndWhile
 EndFunction
 
@@ -289,11 +482,11 @@ String Function ShowSettingsMenu()
     menu.OpenMenu()
     String choice = menu.GetResultString()
     
-    If choice == "[[ Back ]]" || choice == ""
+    If choice == "[[ Back ]]" || choice == "" || choice == "---"
         Return "back"
     Else
         HandleSettingChoice(choice)
-        Return "toggle"  ; Continue settings loop
+        Return "toggle"
     EndIf
 EndFunction
 
@@ -328,8 +521,8 @@ EndFunction
 
 ; Handle setting choice
 Function HandleSettingChoice(String choice)
-	If StringUtil.Find(choice, "Require Runestones") >= 0
-		ToggleSetting("RequireReagents", "Runestones are now ", "required for marking.", "no longer required.")
+    If StringUtil.Find(choice, "Require Runestones") >= 0
+        ToggleSetting("RequireReagents", "Runestones are now ", "required for marking.", "no longer required.")
     ElseIf StringUtil.Find(choice, "Block Recall in Combat") >= 0
         ToggleSetting("BlockInCombat", "Combat blocking is now ", "enabled.", "disabled.")
     ElseIf choice == "Reset All Settings"
@@ -358,9 +551,7 @@ EndFunction
 
 ; Setting management functions
 Bool Function GetSettingBool(String settingName)
-    ; Default values for each setting
-    Int defaultValue = 1  ; True by default for both settings
-    
+    Int defaultValue = 1
     Return StorageUtil.GetIntValue(None, "Runebook_Setting_" + settingName, defaultValue) as Bool
 EndFunction
 
