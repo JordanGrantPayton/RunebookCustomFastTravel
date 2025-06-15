@@ -99,7 +99,7 @@ Bool Function ValidateLocation()
         Cell currentCell = PlayerRef.GetParentCell()
         If currentCell && currentCell.IsInterior()
             ; Allow interior marking but warn about potential issues
-            ; Could add specific interior restrictions here if needed
+            ; 
         EndIf
     EndIf
     
@@ -139,7 +139,7 @@ Bool Function HasNearbyMarker(Float radius)
     Return False
 EndFunction
 
-; Get actual count of valid runes (cleaning up invalid ones)
+; Get actual count of valid runes
 Int Function GetValidRuneCount()
     Int storedCount = StorageUtil.GetIntValue(PlayerRef, "Runebook_Count", 0)
     Int validCount = 0
