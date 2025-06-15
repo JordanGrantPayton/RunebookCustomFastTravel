@@ -513,6 +513,12 @@ UIListMenu Function CreateSettingsMenu()
         menu.AddEntryItem("[ ] Block Recall in Combat")
     EndIf
     
+    If GetSettingBool("RespectFastTravelRestrictions")
+        menu.AddEntryItem("[x] Respect Fast Travel Restrictions")
+    Else
+        menu.AddEntryItem("[ ] Respect Fast Travel Restrictions")
+    EndIf
+    
     menu.AddEntryItem("---")
     menu.AddEntryItem("Reset All Settings")
     
@@ -525,6 +531,8 @@ Function HandleSettingChoice(String choice)
         ToggleSetting("RequireReagents", "Runestones are now ", "required for marking.", "no longer required.")
     ElseIf StringUtil.Find(choice, "Block Recall in Combat") >= 0
         ToggleSetting("BlockInCombat", "Combat blocking is now ", "enabled.", "disabled.")
+    ElseIf StringUtil.Find(choice, "Respect Fast Travel Restrictions") >= 0
+        ToggleSetting("RespectFastTravelRestrictions", "Fast travel restrictions are now ", "respected.", "ignored.")
     ElseIf choice == "Reset All Settings"
         ResetAllSettings()
     EndIf
@@ -546,6 +554,7 @@ EndFunction
 Function ResetAllSettings()
     SetSettingBool("RequireReagents", True)
     SetSettingBool("BlockInCombat", True)
+    SetSettingBool("RespectFastTravelRestrictions", True)
     Debug.Notification("All settings reset to defaults.")
 EndFunction
 
