@@ -139,12 +139,6 @@ Runestones can be crafted at any blacksmith forge:
 - Calyps - Wizard's Hats
 - Created with Skyrim Creation Kit
 
-## CHANGELOG
-
-**v1.0.0 - Initial Release**
-
-- Complete Mark/Recall spell system
-
 ## FUTURE DEVELOPMENT
 
 - Fine tune spell sounds.
