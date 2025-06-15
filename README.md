@@ -33,7 +33,7 @@ A customizable fast-travel system for Skyrim that puts the player in control. Ma
 - **Dynamic Management Interface** - Full menu system for selecting, organizing, and configuring waypoints.
 - **Crafting Integration** - Create Runestones(required reagent for Mark) using existing materials and Blacksmith forge.
 - **Waypoint Organization** - Rename destinations and remove unwanted locations with persistent data storage.
-- **Customizable Requirements** - Toggle reagent consumption and combat restrictions via Runebook settings.
+- **Customizable Requirements** - Toggle reagent consumption and recall restrictions via Runebook settings.
 - **Persistent Data System** - All marked locations survive save/load cycles and game restarts.
 - **No Fast-Travel Conflicts** - Operates independently of vanilla fast-travel system.
 
