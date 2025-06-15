@@ -25,6 +25,11 @@ Bool Function ValidateRecallRequirements(Actor player)
         Return False
     EndIf
     
+    ; NEW: Check fast travel restrictions (if setting enabled)
+    If !CanUseRunebookTravel(player)
+        Return False
+    EndIf
+    
     Return True
 EndFunction
 
@@ -77,6 +82,21 @@ Bool Function ValidateDestination(Actor player)
         Return False
     EndIf
     
+    Return True
+EndFunction
+
+; Check fast travel restrictions
+Bool Function CanUseRunebookTravel(Actor player)
+    ; Check user settings
+    If GetSettingBool("RespectFastTravelRestrictions")
+        ; User wants restrictions, check game state
+        If !Game.IsFastTravelEnabled()
+            Debug.Notification("The threads of fate bind thee to this moment.")
+            Return False
+        EndIf
+    EndIf
+    
+    ; Either restrictions are disabled, or fast travel is allowed
     Return True
 EndFunction
 
