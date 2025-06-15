@@ -1,7 +1,7 @@
 # RUNEBOOK CUSTOM FAST TRAVEL
 
 **VERSION:** 1.0.2  
-**RELEASE DATE:** 2025/06/14  
+**RELEASE DATE:** 2025/06/15  
 **AUTHOR:** Jordan Payton  
 **DEVELOPED FOR:** SKYRIM VERSION: 1.6.1170.0.8  
 **INSPIRED BY:** The golden age of online RPGs, a certain mystical realm where virtue once reigned.
