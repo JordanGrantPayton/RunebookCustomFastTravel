@@ -67,5 +67,5 @@ Access via *Open Runebook → Settings*:
 Larger soul gems yield more runestones
 
 ## SUPPORT & CREDITS
-- **Bug Reports:** Use the mod page comments with detailed load order info
+- **Bug Reports:** Use the Nexusmods page comments with detailed load order info
 - **Credits:** SKSE64 Team, expired6978 (UIExtensions), Calyps (Wizard's Hats)
