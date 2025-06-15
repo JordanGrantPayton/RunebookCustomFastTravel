@@ -96,6 +96,7 @@ Access via Open Runebook → Settings:
 
 - **Require Runestones:** Toggle reagent consumption for marking
 - **Block Recall in Combat:** Prevent teleportation during combat, recommended for stability.
+- **Respect Fast Travel Restrictions:** Prevents teleportation during important story/quest/scripted moments. Also breaks fast-travel for most indoor areas.  
 - **Reset All Settings:** Restore default configuration
 
 ## CRAFTING
