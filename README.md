@@ -11,145 +11,61 @@
 A customizable fast-travel system for Skyrim that puts the player in control. Mark up to 20 personal waypoints anywhere in the world, then teleport instantly to any saved location with intuitive spell-based travel.
 
 ## WHAT THIS GIVES YOU
-
-- Personal teleportation network - Save 20 of your favorite locations.
-- Immersive magic system - Uses spells and reagents instead of map clicking.
-- Instant travel - Less loading screens, no carriage rides, no opening the map.
-- Full control - Choose exactly where your fast-travel points go.
-- Smart management - Rename locations, delete unwanted marks, organize your Runebook.
-- Works everywhere - Mark locations in any worldspace, teleport to Blackreach.
+- **Personal teleportation network** - Save 20 of your favorite locations
+- **Magic based system** - Uses spells and reagents instead of map clicking
+- **Optimized travel** - Less loading screens, no opening the map
+- **Works everywhere** - Mark locations in any worldspace, teleport to Blackreach
 
 ## PERFECT FOR
-
-- Roleplaying mages who want a more immersive experience.
-- Bypassing unoptimized fast-travel points and long walks.
-- Teleporting directly into your home.
+- Roleplaying mages who want a more immersive experience
+- Bypassing unoptimized fast-travel points and long walks, like Ratway to Ragged Flagon.
+- Teleporting directly into your home
 - Quick access to favorite shops, merchants, workbenches, etc.
 
-## FEATURES
-
-- **Mark Spell** - Save any position in any worldspace as a permanent teleportation waypoint.
-- **Recall Spell** - Instantly travel to any saved destination.
-- **Dynamic Management Interface** - Full menu system for selecting, organizing, and configuring waypoints.
-- **Crafting Integration** - Create Runestones(required reagent for Mark) using existing materials and Blacksmith forge.
-- **Waypoint Organization** - Rename destinations and remove unwanted locations with persistent data storage.
-- **Customizable Requirements** - Toggle reagent consumption and recall restrictions via Runebook settings.
-- **Persistent Data System** - All marked locations survive save/load cycles and game restarts.
-- **No Fast-Travel Conflicts** - Operates independently of vanilla fast-travel system.
-
-## REQUIREMENTS
-
-### ESSENTIAL
-
-- [SKSE64 (Skyrim Script Extender)](https://skse.silverlock.org/)
-- [UIExtensions (User Interface Extensions)](https://www.nexusmods.com/skyrimspecialedition/mods/17561)
-
-### RECOMMENDED
-
-- [Wizard's Hats - Simple](https://www.nexusmods.com/skyrimspecialedition/mods/2385)
-
-## INSTALLATION
-
-1. Install SKSE64 first (follow SKSE installation guide)
-2. Install UIExtensions
-3. Install Wizard's Hats - Simple
-4. Extract this mod to your Skyrim Data folder
-5. Activate RunebookMarkandRecall.esp in your mod manager
-6. Launch Skyrim via SKSE64 loader
-7. Start/continue your game
+## KEY FEATURES
+- **Mark Spell** - Save any position in any worldspace as a permanent teleportation waypoint
+- **Recall Spell** - Instantly travel to any saved destination
+- **Dynamic Management Interface** - Full menu system for selecting, organizing, and configuring waypoints
+- **Crafting Integration** - Create Runestones at any blacksmith forge using soul gems and void salts
+- **Customizable Settings** - Toggle reagent requirements, combat restrictions, and fast-travel behavior
+- **Persistent Data System** - All marked locations survive save/load cycles and game restarts
 
 ## GETTING STARTED
+- Find the displaced mage near the College of Winterhold
+- Acquire the Mark/Recall spells, Open Runebook power, and Runestones
+- Cast **Mark** to save locations to your Runebook
+- Use **Open Runebook** power to select destinations
+- Cast **Recall** to teleport to your chosen location
+- Craft additional Runestones: *1 Soul Gem + 1 Void Salts = 1 Runestone*
 
-1. Find the displaced mage, last seen around the College of Winterhold.
-2. Acquire the Mark and Recall spells, the Open Runebook lesser power, the Runebook, and Runestones.
-3. Cast Mark while holding a runebook and runestone to mark locations
-4. Use Open Runebook lesser power to select destinations
-5. Cast Recall to teleport to your chosen location
-6. Craft additional runestones at a blacksmith forge: 1 Soul Gem (any size but black) + 1 Void Salts = 1 Runestone
+## SETTINGS & CONFIGURATION
+Access via *Open Runebook → Settings*:
+- **Require Runestones** - Toggle reagent consumption for marking
+- **Block Recall in Combat** - Prevent teleportation during combat (recommended)
+- **Respect Fast Travel Restrictions** - Follows same rules as map fast travel (blocks during story quests and in most interiors)
+- **Reset All Settings** - Restore default configuration
 
-## HOW TO USE
+## REQUIREMENTS
+- **SKSE64** (required)
+- **UIExtensions** (required)
+- **Wizard's Hats - Simple** (required)
 
-### MARKING LOCATIONS
-
-- Equip Mark spell
-- Have a Runebook and Runestone in inventory
-- Cast the spell at desired location
-- The Runestone is consumed in the marking ritual, its essence becoming a permanent rune within your Runebook
-
-### MANAGING DESTINATIONS
-
-- Cast the Open Runebook lesser power
-- Browse your marked locations
-- Select a destination for recall
-- Rename or delete unwanted locations with the Manage menu.
-
-### RECALLING
-
-- Cast Recall Rune spell
-- Must have selected a destination via Runebook first
-- Requires Runebook in inventory
-- Cannot be used in combat (if enabled in settings)
-
-## SETTINGS
-
-Access via Open Runebook → Settings:
-
-- **Require Runestones:** Toggle reagent consumption for marking
-- **Block Recall in Combat:** Prevent teleportation during combat, recommended for stability.
-- **Respect Fast Travel Restrictions:** Prevents teleportation during important story/quest/scripted moments. Also breaks fast-travel for most indoor areas.  
-- **Reset All Settings:** Restore default configuration
-
-## CRAFTING
-
-Runestones can be crafted at any blacksmith forge:
-
-- **Recipe:** 1 Soul Gem + 1 Void Salts = 1 Runestone
-- Works with any size soul gem, minus black to avoid accidental consumption. The larger the soul gem, the more runestones the recipe yields.
+## INSTALLATION
+- Install requirements above
+- Install via your mod manager
+- Activate **RunebookMarkandRecall.esp**
+- Launch Skyrim via SKSE64 loader
 
 ## COMPATIBILITY
+- **Mid-playthrough safe** - Tested with existing saves
+- **No fast-travel conflicts** - Operates independently of vanilla system
+- **Uninstall safely** - Delete all runes via Open Runebook before uninstalling
 
-- **Mid-playthrough safe:** Yes, I tested with my existing saves and it was fine.
-- **Uninstall safe:** Delete all runes via Open Runebook before uninstalling to prevent orphaned save data.
-- **Load order:** Load after SKSE64, UIExtensions, and Wizard's Hats - Simple
+## CRAFTING RECIPE
+**Runestones** (Blacksmith Forge):
+*1 Soul Gem (any size except black) + 1 Void Salts = 1+ Runestones*
+Larger soul gems yield more runestones
 
-## KNOWN ISSUES
-
-- None currently identified
-- Report bugs on mod page
-
-## UNINSTALLATION
-
-1. Use Open Runebook to delete all marked locations
-2. Remove all mod items from inventory
-3. Create a clean save
-4. Disable the mod
-5. Load the clean save
-
-> **WARNING:** Uninstalling without cleaning save data may cause issues.
-
-## PERMISSIONS
-
-- You may modify this mod for personal use
-- You must credit Wizard's Hats - Simple
-- Contact author before redistributing modifications
-
-## CREDITS
-
-- SKSE64 Team - Skyrim Script Extender
-- expired6978 - UIExtensions
-- Calyps - Wizard's Hats
-- Created with Skyrim Creation Kit
-
-## FUTURE DEVELOPMENT
-
-- Fine tune spell sounds.
-
-## SUPPORT
-
-For support, bug reports, or suggestions:
-
-- Visit the mod page on Nexus Mods
-- Check the Posts section for known issues
-- Provide detailed bug reports with load order
-
-**Thank you for using Runebook Custom Fast Travel!!!**
+## SUPPORT & CREDITS
+- **Bug Reports:** Use the mod page comments with detailed load order info
+- **Credits:** SKSE64 Team, expired6978 (UIExtensions), Calyps (Wizard's Hats)
